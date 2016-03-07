@@ -57,20 +57,20 @@ for B,M,d,delta in zip(BList,MList,dList,deltaList):
 			hp.end2endDistance()
 			toc = time.time()
 			
-			DNAdict['x'] = hp.x0
-			DNAdict['y'] = hp.y0
-			DNAdict['z'] = hp.z0
+			DNAdict['x'] = hp.x0.astype('float32')
+			DNAdict['y'] = hp.y0.astype('float32')
+			DNAdict['z'] = hp.z0.astype('float32')
 			DNAdict['acceptCounter'] = hp.acceptCounter
 			DNAdict['feasibleCounter'] = hp.feasibleCounter
 			DNAdict['totalCounter'] = hp.totalCounter
-			DNAdict['correlationDict'] = hp.corrDict
+			DNAdict['tangentCorrList'] = hp.corrList.astype('float32')
 			DNAdict['bendingAngleList'] = hp.bendingAngleList
 			DNAdict['end2end'] = hp.end2end
 			DNAdict['B'] = hp.B
 			DNAdict['M'] = hp.M
 			DNAdict['d'] = hp.d
 			DNAdict['time'] = toc-tic
-			pickle.dump(DNAdict, open(str(d)+'_'+str(delta)+'/'+str(DNAcounter).zfill(6), 'wb'))
+			pickle.dump(DNAdict, open(str(d)+'_'+str(delta)+'/'+str(DNAcounter).zfill(len(str(int(numDNA)))), 'wb'))
 			del hp, DNAdict
 			
 			if (rank == 0):
