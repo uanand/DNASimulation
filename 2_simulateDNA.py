@@ -64,7 +64,7 @@ for B,M,d,delta in zip(BList,MList,dList,deltaList):
 			DNAdict['feasibleCounter'] = hp.feasibleCounter
 			DNAdict['totalCounter'] = hp.totalCounter
 			DNAdict['tangentCorrList'] = hp.corrList.astype('float32')
-			DNAdict['bendingAngleList'] = hp.bendingAngleList
+			DNAdict['bendingAngleList'] = hp.bendingAngleList.astype('float32')
 			DNAdict['end2end'] = hp.end2end
 			DNAdict['B'] = hp.B
 			DNAdict['M'] = hp.M
