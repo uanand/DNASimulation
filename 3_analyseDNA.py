@@ -10,13 +10,12 @@ from DNAclass import DNA
 ####################################################
 ####################################################
 # USER INPUTS
-B = 50
-M = 200
-
-numDNA = 1039#1e5
+numDNA = 1e5
 numPerturb = 1e5
-dList = [0.5]#[0.5,1.0,1.5,2.0,2.5,3.0,3.5,4.0,4.5,5.0]
-deltaList = [28]#[28,35,39,45,49,53,57,60,64,67]
+dList = [0.5,1.0,1.5,2.0,2.5,3.0,3.5,4.0,4.5,5.0]
+deltaList = [28,35,39,45,49,53,57,60,64,67]
+BList = [50,50,50,50,50,50,50,50,50,50]
+MList = [200,200,200,200,200,200,200,200,200,200]
 ####################################################
 ####################################################
 
@@ -32,14 +31,24 @@ def tangentCorr(x,lamda):
 #DIFFERENT DNA.
 ####################################################
 ####################################################
-#for d,delta in zip(dList,deltaList):
-	#x,corrList,thetaList,end2endList,corrDict,analysisDict = [],[],[],[],{},{}
+for B,M,d,delta in zip(BList,MList,dList,deltaList):
+	h5 = h5py.File(str(B)+'_'+str(M)+'_'+str(d)+'_'+str(delta)+'/DNA.h5py', 'r')
+	x,corrList,thetaList,end2endList,corrDict,analysisDict = range(M),[],[],[],{},{}
+	for key in h5.keys():
+		if (key == h5.keys()[0]):
+			corrArr = h5[key]['tangentCorrList'].value
+		else:
+			corrArr += h5[key]['tangentCorrList'].value
+		for theta in h5[key]['bendingAngleList'].value:
+			thetaList.append(theta)
+		end2endList.append(h5[key]['end2end'].value)
+	
 	#DNAdict = pickle.load(open(str(dList[0])+'_'+str(deltaList[0])+'/1','rb'))
 	#for key in DNAdict['correlationDict'].keys():
 		#x.append(key)
 		#corrDict[key] = []
 	#for i in range(1,numDNA+1):
-		#print i,d,delta
+		#print i,B,M,d,delta
 		#DNAdict = pickle.load(open(str(d)+'_'+str(delta)+'/'+str(i),'rb'))
 		#for key in DNAdict['correlationDict'].keys():
 			#corrDict[key].append(numpy.mean(DNAdict['correlationDict'][key]))
@@ -48,11 +57,12 @@ def tangentCorr(x,lamda):
 		#end2endList.append(DNAdict['end2end'])
 	#for key in DNAdict['correlationDict'].keys():
 		#corrList.append(numpy.mean(corrDict[key]))
-	#analysisDict['x'] = x
-	#analysisDict['correlation'] = corrList
-	#analysisDict['theta'] = thetaList
-	#analysisDict['end2end'] = end2endList
-	#pickle.dump(analysisDict, open(str(d)+'_'+str(delta)+'/analysisDict', 'wb'))
+	analysisDict['x'] = x
+	analysisDict['correlation'] = corrArr/len(h5.keys())
+	analysisDict['theta'] = thetaList
+	analysisDict['end2end'] = end2endList
+	pickle.dump(analysisDict, open(str(B)+'_'+str(M)+'_'+str(d)+'_'+str(delta)+'/analysisDict', 'wb'))
+	h5.close()
 ####################################################
 ####################################################
 	
@@ -62,28 +72,24 @@ def tangentCorr(x,lamda):
 #PLOTTING THE FIGURES - VECTOR CORRELATION	
 fig = plt.figure(figsize=(2.5,1.5))
 ax = fig.add_axes([0,0,1,1])
-for d,delta in zip(dList,deltaList):
+for B,M,d,delta in zip(BList,MList,dList,deltaList):
 	analysisDict = pickle.load(open(str(d)+'_'+str(delta)+'/analysisDict','rb'))
 	
 	#INITIAL GUESS
 	lamda = 1
 	#FITTING WITH EXPONENTIAL DECAY FUNCTION
 	flag = True
-	#try:
 	[params, pcov] = optimize.curve_fit(tangentCorr, analysisDict['x'], analysisDict['correlation'], [lamda])
 	lamda = params[0]*d
-	#except:
-		#flag = False
-		#print "FITTING DOES NOT CONVERGE"
-	#if (flag==True):
-	X = numpy.linspace(0,199,1000)
+	
+	X = numpy.linspace(0,M-1,1000)
 	Y = numpy.exp(-X/params[0])
 	print params[0], params[0]*d
 	ax.plot(analysisDict['x'],analysisDict['correlation'],label='Correlation',lw=2)
 	ax.plot(X,Y,label='Fit')
 	ax.set_xlabel(r'$\Delta$(L)')
 	ax.set_ylabel('Correlation')
-	ax.set_xlim(0,200)
+	ax.set_xlim(0,M)
 	ax.set_ylim(0,1)
 	plt.savefig(str(d)+'_'+str(delta)+'/figCorr.png',format='png')
 	plt.savefig(str(d)+'_'+str(delta)+'/figCorr.pdf',format='pdf')
