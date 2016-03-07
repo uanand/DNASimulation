@@ -107,6 +107,7 @@ class DNA(object):
 		self.tangentX, self.tangentY, self.tangentZ = (self.x0[1:]-self.x0[:-1])/self.lengthSegment, (self.y0[1:]-self.y0[:-1])/self.lengthSegment, (self.z0[1:]-self.z0[:-1])/self.lengthSegment
 		for i,j in zip(range(self.M-2),range(1,self.M-1)):
 			self.bendingAngleList.append(rad2deg(arccos(self.tangentX[i]*self.tangentX[j] + self.tangentY[i]*self.tangentY[j] + self.tangentZ[i]*self.tangentZ[j])))
+		self.bendingAngleList = numpy.array(self.bendingAngleList)
 			
 	def end2endDistance(self):
 		self.end2end = sqrt((self.x0[0]-self.x0[-1])**2 + (self.y0[0]-self.y0[-1])**2 + (self.z0[0]-self.z0[-1])**2)
