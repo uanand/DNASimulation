@@ -97,7 +97,7 @@ class DNA(object):
 			for j,k in zip(range(self.M-1-i),range(i,self.M-1)):
 				self.corrDict[i].append(self.tangentX[j]*self.tangentX[k] + self.tangentY[j]*self.tangentY[k] + self.tangentZ[j]*self.tangentZ[k])
 		for i in range(self.M-1):
-			self.corrList.append(numpy.mean(self.corrDict[i])
+			self.corrList.append(numpy.mean(self.corrDict[i]))
 		self.corrList = numpy.asarray(self.corrList)
 			#corrDict[key].append(numpy.mean(DNAdict['correlationDict'][key]))
 			
