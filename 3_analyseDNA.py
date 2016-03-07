@@ -1,6 +1,7 @@
 import os
 import numpy
 import time
+import h5py
 import cPickle as pickle
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
@@ -33,7 +34,7 @@ def tangentCorr(x,lamda):
 ####################################################
 for B,M,d,delta in zip(BList,MList,dList,deltaList):
 	h5 = h5py.File(str(B)+'_'+str(M)+'_'+str(d)+'_'+str(delta)+'/DNA.h5py', 'r')
-	x,corrList,thetaList,end2endList,corrDict,analysisDict = range(M),[],[],[],{},{}
+	x,corrList,thetaList,end2endList,corrDict,analysisDict = range(M-1),[],[],[],{},{}
 	for key in h5.keys():
 		if (key == h5.keys()[0]):
 			corrArr = h5[key]['tangentCorrList'].value
@@ -73,7 +74,7 @@ for B,M,d,delta in zip(BList,MList,dList,deltaList):
 fig = plt.figure(figsize=(2.5,1.5))
 ax = fig.add_axes([0,0,1,1])
 for B,M,d,delta in zip(BList,MList,dList,deltaList):
-	analysisDict = pickle.load(open(str(d)+'_'+str(delta)+'/analysisDict','rb'))
+	analysisDict = pickle.load(open(str(B)+'_'+str(M)+'_'+str(d)+'_'+str(delta)+'/analysisDict','rb'))
 	
 	#INITIAL GUESS
 	lamda = 1
@@ -91,15 +92,15 @@ for B,M,d,delta in zip(BList,MList,dList,deltaList):
 	ax.set_ylabel('Correlation')
 	ax.set_xlim(0,M)
 	ax.set_ylim(0,1)
-	plt.savefig(str(d)+'_'+str(delta)+'/figCorr.png',format='png')
-	plt.savefig(str(d)+'_'+str(delta)+'/figCorr.pdf',format='pdf')
+	plt.savefig(str(B)+'_'+str(M)+'_'+str(d)+'_'+str(delta)+'/figCorr.png',format='png')
+	plt.savefig(str(B)+'_'+str(M)+'_'+str(d)+'_'+str(delta)+'/figCorr.pdf',format='pdf')
 	plt.cla()
 	
-	ax.hist(analysisDict['theta'], bins=range(0,21,1), normed=True)
+	ax.hist(analysisDict['theta'], bins=range(0,91,1), normed=True)
 	ax.set_xlabel('Bending angle (deg)')
 	ax.set_ylabel('Probability')
-	plt.savefig(str(d)+'_'+str(delta)+'/figBendingAngle.png',format='png')
-	plt.savefig(str(d)+'_'+str(delta)+'/figBendingAngle.pdf',format='pdf')
+	plt.savefig(str(B)+'_'+str(M)+'_'+str(d)+'_'+str(delta)+'/figBendingAngle.png',format='png')
+	plt.savefig(str(B)+'_'+str(M)+'_'+str(d)+'_'+str(delta)+'/figBendingAngle.pdf',format='pdf')
 	plt.cla()
 	
 	print numpy.mean(numpy.asarray(analysisDict['end2end'])**2)
