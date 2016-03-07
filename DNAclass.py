@@ -89,15 +89,17 @@ class DNA(object):
 				self.acceptCounter+=1
 				
 	def tangentCorrelation(self):
-		self.corrDict = {}
+		self.corrDict, self.corrList = {}, []
 		self.lengthSegment = sqrt((self.x0[1:]-self.x0[:-1])**2 + (self.y0[1:]-self.y0[:-1])**2 + (self.z0[1:]-self.z0[:-1])**2)
 		self.tangentX, self.tangentY, self.tangentZ = (self.x0[1:]-self.x0[:-1])/self.lengthSegment, (self.y0[1:]-self.y0[:-1])/self.lengthSegment, (self.z0[1:]-self.z0[:-1])/self.lengthSegment
 		for i in range(self.M-1):
 			self.corrDict[i] = []
-			#for j,k in zip(range(self.10-1-i),range(i,self.10-1)):
 			for j,k in zip(range(self.M-1-i),range(i,self.M-1)):
-				#print i,j,k
 				self.corrDict[i].append(self.tangentX[j]*self.tangentX[k] + self.tangentY[j]*self.tangentY[k] + self.tangentZ[j]*self.tangentZ[k])
+		for i in range(self.M-1):
+			self.corrList.append(numpy.mean(self.corrDict[i])
+		self.corrList = numpy.asarray(self.corrList)
+			#corrDict[key].append(numpy.mean(DNAdict['correlationDict'][key]))
 			
 	def bendingAngle(self):
 		self.bendingAngleList = []
