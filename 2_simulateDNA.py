@@ -42,8 +42,8 @@ MList = [200,200,200,200,200,200,200,200,200,200]
 ####################################################
 for B,M,d,delta in zip(BList,MList,dList,deltaList):
 	if (rank == 0):
-		mkdir(str(d)+'_'+str(delta))
-
+		mkdir(str(B)+'_'+str(M)+'_'+str(d)+'_'+str(delta))
+		
 for B,M,d,delta in zip(BList,MList,dList,deltaList):
 	for DNAcounter in range(1,int(numDNA)+1):
 		if ((DNAcounter-1)%size == rank):
@@ -72,9 +72,8 @@ for B,M,d,delta in zip(BList,MList,dList,deltaList):
 			DNAdict['M'] = hp.M
 			DNAdict['d'] = hp.d
 			DNAdict['time'] = toc-tic
-			pickle.dump(DNAdict, open(str(d)+'_'+str(delta)+'/'+str(DNAcounter).zfill(len(str(int(numDNA)))), 'wb'))
+			pickle.dump(DNAdict, open(str(B)+'_'+str(M)+'_'+str(d)+'_'+str(delta)+'/'+str(DNAcounter).zfill(len(str(int(numDNA)))), 'wb'))
 			del hp, DNAdict
-			
 			if (rank == 0):
 				print d,delta,DNAcounter,toc-tic
 ####################################################
@@ -86,8 +85,28 @@ for B,M,d,delta in zip(BList,MList,dList,deltaList):
 # COMBINE ALL DICTIONARIES INTO SINGLE HDF5 FILE
 ####################################################
 ####################################################
-
-
+if (rank == 0):
+	for B,M,d,delta in zip(BList,MList,dList,deltaList):
+		h5 = h5py.File(str(B)+'_'+str(M)+'_'+str(d)+'_'+str(delta)+'/DNA.h5py', 'w')
+		for i in range(1,numDNA+1):
+			fileName = str(B)+'_'+str(M)+'_'+str(d)+'_'+str(delta)+'/'+str(i).zfill(len(str(int(numDNA))))
+			DNAdict = pickle.load(open(fileName,'rb'))
+			DNA = h5.create_group(str(i).zfill(len(str(int(numDNA)))))
+			DNA.create_dataset('x', data=DNAdict['x'], compression='gzip')
+			DNA.create_dataset('y', data=DNAdict['y'], compression='gzip')
+			DNA.create_dataset('z', data=DNAdict['z'], compression='gzip')
+			DNA.create_dataset('acceptCounter', data=DNAdict['acceptCounter'])
+			DNA.create_dataset('feasibleCounter', data=DNAdict['feasibleCounter'])
+			DNA.create_dataset('totalCounter', data=DNAdict['totalCounter'])
+			DNA.create_dataset('tangentCorrList', data=DNAdict['tangentCorrList'], compression='gzip')
+			DNA.create_dataset('bendingAngleList', data=DNAdict['bendingAngleList'], compression='gzip')
+			DNA.create_dataset('end2end', data=DNAdict['end2end'])
+			DNA.create_dataset('B', data=DNAdict['B'])
+			DNA.create_dataset('M', data=DNAdict['M'])
+			DNA.create_dataset('d', data=DNAdict['d'])
+			DNA.create_dataset('time', data=DNAdict['time'])
+			del DNAdict
+			os.remove(fileName)
+		h5.close()
 ####################################################
 ####################################################
-
