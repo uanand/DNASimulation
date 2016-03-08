@@ -87,7 +87,8 @@ for B,M,d,delta in zip(BList,MList,dList,deltaList):
 if (rank == 0):
 	for B,M,d,delta in zip(BList,MList,dList,deltaList):
 		h5 = h5py.File(str(B)+'_'+str(M)+'_'+str(d)+'_'+str(delta)+'/DNA.h5py', 'w')
-		for i in range(1,numDNA+1):
+		print B,M,d,delta
+		for i in range(1,int(numDNA)+1):
 			fileName = str(B)+'_'+str(M)+'_'+str(d)+'_'+str(delta)+'/'+str(i).zfill(len(str(int(numDNA))))
 			DNAdict = pickle.load(open(fileName,'rb'))
 			DNA = h5.create_group(str(i).zfill(len(str(int(numDNA)))))
