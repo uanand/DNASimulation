@@ -3,8 +3,6 @@ import numpy
 import time
 import h5py
 import cPickle as pickle
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 from mpi4py import MPI
 from DNAclass import DNA
 
@@ -41,42 +39,42 @@ MList = [200,200,200,200,200,200,200,200,200,200]
 #6. TIME REQUIRED FOR THE SIMULATION AND COMPUTATIONS
 ####################################################
 ####################################################
-#for B,M,d,delta in zip(BList,MList,dList,deltaList):
-	#if (rank == 0):
-		#mkdir(str(B)+'_'+str(M)+'_'+str(d)+'_'+str(delta))
+for B,M,d,delta in zip(BList,MList,dList,deltaList):
+	if (rank == 0):
+		mkdir(str(B)+'_'+str(M)+'_'+str(d)+'_'+str(delta))
 		
-#for B,M,d,delta in zip(BList,MList,dList,deltaList):
-	#for DNAcounter in range(1,int(numDNA)+1):
-		#if ((DNAcounter-1)%size == rank):
-			#DNAdict = {}
-			#tic = time.time()
-			#hp = DNA(B,M,d)
-			#while (hp.feasibleCounter < numPerturb):
-				#hp.copyDNA()
-				#hp.perturb(mode=numpy.random.randint(2), delta=delta)
-				#hp.acceptReject()
-			#hp.tangentCorrelation()
-			#hp.bendingAngle()
-			#hp.end2endDistance()
-			#toc = time.time()
+for B,M,d,delta in zip(BList,MList,dList,deltaList):
+	for DNAcounter in range(1,int(numDNA)+1):
+		if ((DNAcounter-1)%size == rank):
+			DNAdict = {}
+			tic = time.time()
+			hp = DNA(B,M,d)
+			while (hp.feasibleCounter < numPerturb):
+				hp.copyDNA()
+				hp.perturb(mode=numpy.random.randint(2), delta=delta)
+				hp.acceptReject()
+			hp.tangentCorrelation()
+			hp.bendingAngle()
+			hp.end2endDistance()
+			toc = time.time()
 			
-			#DNAdict['x'] = hp.x0.astype('float32')
-			#DNAdict['y'] = hp.y0.astype('float32')
-			#DNAdict['z'] = hp.z0.astype('float32')
-			#DNAdict['acceptCounter'] = hp.acceptCounter
-			#DNAdict['feasibleCounter'] = hp.feasibleCounter
-			#DNAdict['totalCounter'] = hp.totalCounter
-			#DNAdict['tangentCorrList'] = hp.corrList.astype('float32')
-			#DNAdict['bendingAngleList'] = hp.bendingAngleList.astype('float32')
-			#DNAdict['end2end'] = hp.end2end
-			#DNAdict['B'] = hp.B
-			#DNAdict['M'] = hp.M
-			#DNAdict['d'] = hp.d
-			#DNAdict['time'] = toc-tic
-			#pickle.dump(DNAdict, open(str(B)+'_'+str(M)+'_'+str(d)+'_'+str(delta)+'/'+str(DNAcounter).zfill(len(str(int(numDNA)))), 'wb'))
-			#del hp, DNAdict
-			#if (rank == 0):
-				#print d,delta,DNAcounter,toc-tic
+			DNAdict['x'] = hp.x0.astype('float32')
+			DNAdict['y'] = hp.y0.astype('float32')
+			DNAdict['z'] = hp.z0.astype('float32')
+			DNAdict['acceptCounter'] = hp.acceptCounter
+			DNAdict['feasibleCounter'] = hp.feasibleCounter
+			DNAdict['totalCounter'] = hp.totalCounter
+			DNAdict['tangentCorrList'] = hp.corrList.astype('float32')
+			DNAdict['bendingAngleList'] = hp.bendingAngleList.astype('float32')
+			DNAdict['end2end'] = hp.end2end
+			DNAdict['B'] = hp.B
+			DNAdict['M'] = hp.M
+			DNAdict['d'] = hp.d
+			DNAdict['time'] = toc-tic
+			pickle.dump(DNAdict, open(str(B)+'_'+str(M)+'_'+str(d)+'_'+str(delta)+'/'+str(DNAcounter).zfill(len(str(int(numDNA)))), 'wb'))
+			del hp, DNAdict
+			if (rank == 0):
+				print d,delta,DNAcounter,toc-tic
 ####################################################
 ####################################################
 
