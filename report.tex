@@ -20,13 +20,13 @@ Monte Carlo simulations are a very useful tool to study a variety of problems wh
 
 \section{Notation}
 \label{notation}
-\begin{tabular}{|c|l|}
+\begin{tabular}{|l|l|}
 \hline
-\textbf{Symbol} & \textbf{Meaning}\\
+\textbf{Symbol} & \textbf{Definition}\\
 \hline
 $B$ & Persistent length of DNA\\
 $M$ & Number of beads\\
-$d$ & Length of each small rod segment\\
+$d$ & Distance between two neighboring beads\\
 $E_{\textrm{bend}}$ & Bending energy\\
 $k_B$ & Boltzmann's constant\\
 $T$ & Temperature\\
@@ -35,14 +35,14 @@ $T$ & Temperature\\
 
 \section{Method}
 \label{method}
-All the simulation codes are written in python using the numpy, mpi, and matplotlib libraries. $B$ and $M$ were fixed as 50 nm and 200 respectively. $d$ took the values 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, and 5.0 nm. DNA simulation was done using these steps.
+All the simulation codes \ref{} are written in python using the numpy, mpi, and matplotlib libraries. The $B$ and $M$ were fixed as 50 nm and 200 respectively. $d$ took the values 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, and 5.0 nm. DNA simulation was done in 2D and 3D using these steps.
 
 \begin{enumerate}
 \item $M$ beads were placed on the x-axis such that they are equally spaced, the first bead is at origin, and the last bead is at $Md$.
 \item Random perturbations ~\ref{figure1} were done to the DNA using either
 	\begin{enumerate}
 	\item \textit{Chain bending}. A bead $i$ was randomly chosen, and all the beads after it were rotated by an angle $\delta \in U(-\alpha,\alpha)$ about a randomly oriented axis passing through the center of the bead $i$. 
-	\item \textit{Crank-shaft rotation}. Beads $i$ and $j$ are randomly chosen Two beads were randomly chosen and all the beads in between were  rotated by an angle $\delta \in U(-\alpha,\alpha)$ about the axis passing through the beads $i$ and $j$.
+	\item \textit{Crank-shaft rotation}. Beads $i$ and $j$ are randomly chosen Two beads were randomly chosen and all the beads in between were  rotated by an angle $\delta \in U(-\alpha,\alpha)$ about the axis passing through the beads $i$ and $j$. Note that this type of perturbation is valid only for 3D confirmations.
 	\end{enumerate}
 \item After the perturbation bending energy was calculated using $$E_{\textrm{bend}} = \frac{k_B T B}{2 d} \sum_{i=2}^{M-1} \left( \hat{t}_{i,i+1} - \hat{t}_{i-1,i} \right)^2$$.
 	\begin{enumerate}
@@ -50,25 +50,30 @@ All the simulation codes are written in python using the numpy, mpi, and matplot
 	\item If $\Delta E_{\textrm{bend}} > 0$, then the perturbation is accepted if $r < \exp \left( -\frac{\Delta E_{\textrm{bend}}}{k_B T} \right)$, where $r \in U(0,1)$.
 	\end{enumerate}
 \item The DNA is subject to $10^5$ such perturbations and $\alpha$ is chosen such that the accpetance probability of perturbations is $\approx 0.5$. Figure ~\ref{figure2} shows the acceptance probability for varying $d$ values as $\alpha$ increases.
-\item This simulation is done for $10^4$ DNA using the above logic and the tangent correlation, bending angle ditributiion, and end-to-end distance are calcuated.
+\item This simulation is done for $10^4$ DNA using the above outlined steps and the tangent correlation, bending angle ditributiion, and end-to-end distance are calcuated.
+\end{enumerate}
 
-\begin{figure}[t]
+The python code was executed on  2670 GHz processor. Figure ~\ref{} shows the box plot of run-times for simulation in 2D and 3D.
+
+\begin{figure}
 \label{figure1}
 \centering
-\includegraphics{figure1.png}
-\caption{\textbf{Perturbation in DNA.} \textbf{(A)} Chain bending of DNA about random bead $i$ by an angle $\theta$. \textbf{(B)} Crank-shaft rotation of DNA around random bead points $i$, $j$ by an angle $\theta$. The axis of rotation is denoted by the solid red line. The blue and orange balls are the position of beads before and after perturbation respectively.}
+\includegraphics{figure1_v02.png}
+\caption{\textbf{Perturbation in DNA.} \textbf{(A)} Chain bending of DNA about random bead $i$ by an angle $\theta$. \textbf{(B)} Crank-shaft rotation of DNA around random bead points $i$, $j$ by an angle $\theta$. The axis of rotation is denoted by the solid red line. The blue and orange balls are the position of beads before and after perturbation respectively. \textit{Image credit - Dr Artem, PC5213 Lecture 6 notes.}}
 \end{figure}
 
-\begin{figure}[b]
+\begin{figure}
 \label{figure2}
 \centering
-\includegraphics{figure2.png}
-\caption{\textbf{Acceptance probability} for Monte Carlo simulation for different values of $d$, and for a fixed $M = 200$ and $B = 50$ nm. As $d$ increases, the length of DNA increases, but $B$ remains same, which means the longer DNA is more flexible than the shorter DNA. The horizontal black line denotes the acceptance probability = 0.5. Starting with the initial configuration, the DNA is perturbed $10^5$ times by an angle $\delta \in U(-\alpha,\alpha)$. The number of accepted perturbations give the acceptance probability.}
+\includegraphics{figure2_v01.png}
+\caption{\textbf{Acceptance probability} for Monte Carlo simulation in \textbf{(A)} 2D, and \textbf{(B)} 3D for different values of $d$, and for a fixed $M = 200$ and $B = 50$ nm. As $d$ increases, the length of DNA increases, but $B$ remains same, which means the longer DNA is more flexible than the shorter DNA. The horizontal black line denotes the acceptance probability = 0.5. Starting with the initial configuration, the DNA is perturbed $10^5$ times by an angle $\delta \in U(-\alpha,\alpha)$. The number of accepted perturbations give the acceptance probability.}
 \end{figure}
 
+\section{Results and discussion}
+\label{results}
+The tangent correlation is efined as 
 
-The codes were written in Python \ref{} and run on 2670 GHz processor. Fitgure \ref{} shows the box plot of run-times for simulation.
-\end{enumerate}
+
 
 %\end{multicols}{2}
 \end{document}
