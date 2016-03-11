@@ -19,9 +19,9 @@ class DNA(object):
 		self.e0 = 0
 		self.eps = 1e-20
 		
-	def rotate2d(self,x,y,z,a,b,c,u,v,w,alpha):
-		x,y,z = (a*(v**2+w**2) - u*(b*v+c*w-u*x-v*y-w*z))*(1-cos(alpha)) + x*cos(alpha) + (-c*v+b*w-w*y+v*z)*sin(alpha), (b*(u**2+w**2) - v*(a*u+c*w-u*x-v*y-w*z))*(1-cos(alpha)) + y*cos(alpha) + (c*u-a*w+w*x-u*z)*sin(alpha), (c*(u**2+v**2) - w*(a*u+b*v-u*x-v*y-w*z))*(1-cos(alpha)) + z*cos(alpha) + (-b*u+a*v-v*x+u*y)*sin(alpha)
-		return x,y,z
+	def rotate2d(self,x,y,a,b,alpha):
+		x,y = cos(alpha)*(x-a) - sin(alpha)*(y-b) + a, sin(alpha)*(x-a) + cos(alpha)*(y-b) + b
+		return x,y
 		
 	def rotate3d(self,x,y,z,a,b,c,u,v,w,alpha):
 		x,y,z = (a*(v**2+w**2) - u*(b*v+c*w-u*x-v*y-w*z))*(1-cos(alpha)) + x*cos(alpha) + (-c*v+b*w-w*y+v*z)*sin(alpha), (b*(u**2+w**2) - v*(a*u+c*w-u*x-v*y-w*z))*(1-cos(alpha)) + y*cos(alpha) + (c*u-a*w+w*x-u*z)*sin(alpha), (c*(u**2+v**2) - w*(a*u+b*v-u*x-v*y-w*z))*(1-cos(alpha)) + z*cos(alpha) + (-b*u+a*v-v*x+u*y)*sin(alpha)
@@ -85,9 +85,8 @@ class DNA(object):
 		if (self.mode == '2d'):
 			i = numpy.random.randint(1,self.M-1)
 			alpha = numpy.deg2rad(numpy.random.rand()*delta*2-delta)
-			a,b,c = self.x1[i],self.y1[i],self.z1[i]
-			u,v,w = sin(theta)*cos(phi), sin(theta)*sin(phi), cos(theta)
-			self.x1[i+1:],self.y1[i+1:],self.z1[i+1:] = self.rotate(self.x1[i+1:],self.y1[i+1:],self.z1[i+1:],a,b,c,u,v,w,alpha)
+			a,b = self.x1[i],self.y1[i]
+			self.x1[i+1:],self.y1[i+1:] = self.rotate2d(self.x1[i+1:],self.y1[i+1:],a,b,alpha)
 				
 		elif (self.mode == '3d'):
 			if (perturbMode==0):
@@ -111,7 +110,7 @@ class DNA(object):
 				phi = numpy.random.rand()*numpy.pi*2
 				alpha = numpy.deg2rad(numpy.random.rand()*delta*2-delta)
 				a,b,c = self.x1[i],self.y1[i],self.z1[i]
-				u,v,w = self.normalize(self.x1[j]-self.x1[i],self.y1[j]-self.y1[i],self.z1[j]-self.z1[i])
+				u,v,w = self.normalize3d(self.x1[j]-self.x1[i],self.y1[j]-self.y1[i],self.z1[j]-self.z1[i])
 				self.x1[i+1:j],self.y1[i+1:j],self.z1[i+1:j] = self.rotate3d(self.x1[i+1:j],self.y1[i+1:j],self.z1[i+1:j],a,b,c,u,v,w,alpha)
 			
 	def acceptReject(self):
