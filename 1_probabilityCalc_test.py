@@ -13,7 +13,7 @@ size = comm.Get_size()
 dList = numpy.arange(0.5,5.1,0.1)
 BList = numpy.zeros(numpy.size(dList),dtype='int'); BList[:] = 50
 MList = numpy.zeros(numpy.size(dList),dtype='int'); MList[:] = 200
-deltaList = range(0,181,1)
+deltaList = range(0,181,10)
 numPerturb = 1e3
 
 counter = 0
