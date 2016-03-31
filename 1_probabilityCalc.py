@@ -42,8 +42,8 @@ for mode in ['2d','3d']:
             counter += 1
 outFile.close()
 
-if (rank == 0):
-    for i in range(size):
+# if (rank == 0):
+#     for i in range(size):
         
 
 ##################################################
