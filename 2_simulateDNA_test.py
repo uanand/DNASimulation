@@ -45,9 +45,27 @@ dList = numpy.unique(DATA[:,3])#numpy.arange(0.5,5.1,0.1)
 BList = numpy.zeros(numpy.size(dList),dtype='int'); BList[:] = 50
 MList = numpy.zeros(numpy.size(dList),dtype='int'); MList[:] = 200
 
-for mode in ['2d','3d']:
-    if (rank == 0):
+if (rank==0):
+    for mode in ['2d','3d']:
+        if (mode == '2d'):
+            modeInt = 2
+        elif (mode == '3d'):
+            modeInt = 3
+        deltaList = []
+        for B,M,d in zip(BList,MList,dList):
+            data = DATA[DATA[:,0] == modeInt]
+            data = data[data[:,1] == B]
+            data = data[data[:,2] == M]
+            data = data[data[:,3] == d]
+            index = numpy.argmin(numpy.abs(data[:,5]-0.5))
+            deltaList.append(int(data[index,4]))
+            
         mkdir(mode)
+        for B,M,d,delta in zip(BList,MList,dList,deltaList):
+            mkdir(mode+'/'+str(B)+'_'+str(M)+'_'+str(d)+'_'+str(delta))
+comm.Barrier()
+        
+for mode in ['3d']:
     if (mode == '2d'):
         modeInt = 2
     elif (mode == '3d'):
@@ -61,10 +79,6 @@ for mode in ['2d','3d']:
         index = numpy.argmin(numpy.abs(data[:,5]-0.5))
         deltaList.append(int(data[index,4]))
         
-    for B,M,d,delta in zip(BList,MList,dList,deltaList):
-        if (rank == 0):
-            mkdir(mode+'/'+str(B)+'_'+str(M)+'_'+str(d)+'_'+str(delta))
-            
     for B,M,d,delta in zip(BList,MList,dList,deltaList):
         for DNAcounter in range(1,int(numDNA)+1):
             if ((DNAcounter-1)%size == rank):
@@ -110,9 +124,9 @@ for mode in ['2d','3d']:
 if (rank == 0):
     for mode in ['2d','3d']:
         if (mode == '2d'):
-    		modeInt = 2
-    	else:
-    		modeInt = 3
+            modeInt = 2
+        else:
+            modeInt = 3
         deltaList = []
         for B,M,d in zip(BList,MList,dList):
             data = DATA[DATA[:,0] == modeInt]

@@ -13,8 +13,8 @@ size = comm.Get_size()
 dList = numpy.arange(0.5,5.1,0.1)
 BList = numpy.zeros(numpy.size(dList),dtype='int'); BList[:] = 50
 MList = numpy.zeros(numpy.size(dList),dtype='int'); MList[:] = 200
-deltaList = range(0,181,10)
-numPerturb = 1e3
+deltaList = range(0,181,1)
+numPerturb = 1e5
 
 counter = 0
 outFile = open('acceptProb_'+str(rank).zfill(2)+'.txt', 'wb')
