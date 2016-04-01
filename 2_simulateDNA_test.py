@@ -18,8 +18,8 @@ eps = 1e-10
 ####################################################
 ####################################################
 # USER INPUTS
-numDNA = 1e1
-numPerturb = 1e3
+numDNA = 1e5
+numPerturb = 1e5
 # dList = [0.5,1.0,1.5,2.0,2.5,3.0,3.5,4.0,4.5,5.0]
 # deltaList = [28,35,39,45,49,53,57,60,64,67]
 # BList = [50,50,50,50,50,50,50,50,50,50]
@@ -41,7 +41,7 @@ numPerturb = 1e3
 ####################################################
 ####################################################
 DATA = numpy.loadtxt('acceptProb.txt', delimiter=' ', skiprows=1)
-dList = numpy.unique(DATA[:,3])#numpy.arange(0.5,5.1,0.1)
+dList = numpy.unique(DATA[:,3])       #numpy.arange(0.5,5.1,0.1)
 BList = numpy.zeros(numpy.size(dList),dtype='int'); BList[:] = 50
 MList = numpy.zeros(numpy.size(dList),dtype='int'); MList[:] = 200
 
@@ -112,6 +112,7 @@ for mode in ['3d']:
                 del hp, DNAdict
                 if (rank == 0):
                     print mode,d,delta,DNAcounter,toc-tic
+comm.Barrier()
 ####################################################
 ####################################################
 
