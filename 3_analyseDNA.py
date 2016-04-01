@@ -32,38 +32,29 @@ def tangentCorr(x,lamda):
 #DIFFERENT DNA.
 ####################################################
 ####################################################
-for B,M,d,delta in zip(BList,MList,dList,deltaList):
-	h5 = h5py.File(str(B)+'_'+str(M)+'_'+str(d)+'_'+str(delta)+'/DNA.h5py', 'r')
-	x,corrList,thetaList,end2endList,corrDict,analysisDict = range(M-1),[],[],[],{},{}
-	for key in h5.keys():
-		if (key == h5.keys()[0]):
-			corrArr = h5[key]['tangentCorrList'].value
-		else:
-			corrArr += h5[key]['tangentCorrList'].value
-		for theta in h5[key]['bendingAngleList'].value:
-			thetaList.append(theta)
-		end2endList.append(h5[key]['end2end'].value)
-	
-	#DNAdict = pickle.load(open(str(dList[0])+'_'+str(deltaList[0])+'/1','rb'))
-	#for key in DNAdict['correlationDict'].keys():
-		#x.append(key)
-		#corrDict[key] = []
-	#for i in range(1,numDNA+1):
-		#print i,B,M,d,delta
-		#DNAdict = pickle.load(open(str(d)+'_'+str(delta)+'/'+str(i),'rb'))
-		#for key in DNAdict['correlationDict'].keys():
-			#corrDict[key].append(numpy.mean(DNAdict['correlationDict'][key]))
-		#for theta in DNAdict['bendingAngleList']:
-			#thetaList.append(theta)
-		#end2endList.append(DNAdict['end2end'])
-	#for key in DNAdict['correlationDict'].keys():
-		#corrList.append(numpy.mean(corrDict[key]))
-	analysisDict['x'] = x
-	analysisDict['correlation'] = corrArr/len(h5.keys())
-	analysisDict['theta'] = thetaList
-	analysisDict['end2end'] = end2endList
-	pickle.dump(analysisDict, open(str(B)+'_'+str(M)+'_'+str(d)+'_'+str(delta)+'/analysisDict', 'wb'))
-	h5.close()
+for mode in ['2d','3d']:
+    if (mode == '2d'):
+		modeInt = 2
+	else:
+		modeInt = 3
+	for B,M,d,delta in zip(BList,MList,dList,deltaList):
+		h5 = h5py.File(mode+'/'+str(B)+'_'+str(M)+'_'+str(d)+'_'+str(delta)+'/DNA.h5py', 'r')
+		x,corrList,thetaList,end2endList,corrDict,analysisDict = range(M-1),[],[],[],{},{}
+		for key in h5.keys():
+			if (key == h5.keys()[0]):
+				corrArr = h5[key]['tangentCorrList'].value
+			else:
+				corrArr += h5[key]['tangentCorrList'].value
+			for theta in h5[key]['bendingAngleList'].value:
+				thetaList.append(theta)
+			end2endList.append(h5[key]['end2end'].value)
+			
+		analysisDict['x'] = x
+		analysisDict['correlation'] = corrArr/len(h5.keys())
+		analysisDict['theta'] = thetaList
+		analysisDict['end2end'] = end2endList
+		pickle.dump(analysisDict, open(mode+'/'+str(B)+'_'+str(M)+'_'+str(d)+'_'+str(delta)+'/analysisDict', 'wb'))
+		h5.close()
 ####################################################
 ####################################################
 	
@@ -73,39 +64,44 @@ for B,M,d,delta in zip(BList,MList,dList,deltaList):
 #PLOTTING THE FIGURES - VECTOR CORRELATION	
 fig = plt.figure(figsize=(2.5,1.5))
 ax = fig.add_axes([0,0,1,1])
-for B,M,d,delta in zip(BList,MList,dList,deltaList):
-	analysisDict = pickle.load(open(str(B)+'_'+str(M)+'_'+str(d)+'_'+str(delta)+'/analysisDict','rb'))
-	
-	#INITIAL GUESS
-	lamda = 1
-	#FITTING WITH EXPONENTIAL DECAY FUNCTION
-	flag = True
-	[params, pcov] = optimize.curve_fit(tangentCorr, analysisDict['x'], analysisDict['correlation'], [lamda])
-	lamda = params[0]*d
-	
-	X = numpy.linspace(0,M-1,1000)
-	Y = numpy.exp(-X/params[0])
-	print params[0], params[0]*d
-	ax.plot(analysisDict['x'],analysisDict['correlation'],label='Correlation',lw=2)
-	ax.plot(X,Y,label='Fit')
-	ax.set_xlabel(r'$\Delta$(L)')
-	ax.set_ylabel('Correlation')
-	ax.set_xlim(0,M)
-	ax.set_ylim(0,1)
-	plt.savefig(str(B)+'_'+str(M)+'_'+str(d)+'_'+str(delta)+'/figCorr.png',format='png')
-	plt.savefig(str(B)+'_'+str(M)+'_'+str(d)+'_'+str(delta)+'/figCorr.pdf',format='pdf')
-	plt.cla()
-	
-	ax.hist(analysisDict['theta'], bins=range(0,91,1), normed=True)
-	ax.set_xlabel('Bending angle (deg)')
-	ax.set_ylabel('Probability')
-	plt.savefig(str(B)+'_'+str(M)+'_'+str(d)+'_'+str(delta)+'/figBendingAngle.png',format='png')
-	plt.savefig(str(B)+'_'+str(M)+'_'+str(d)+'_'+str(delta)+'/figBendingAngle.pdf',format='pdf')
-	plt.cla()
-	
-	print numpy.mean(numpy.asarray(analysisDict['end2end'])**2)
-	print numpy.var(analysisDict['end2end'])
-	print 2*lamda*100 - 2*lamda**2*(1-numpy.exp(-100/lamda))
+for mode in ['2d','3d']:
+    if (mode == '2d'):
+		modeInt = 2
+	else:
+		modeInt = 3
+	for B,M,d,delta in zip(BList,MList,dList,deltaList):
+		analysisDict = pickle.load(open(mode+'/'+str(B)+'_'+str(M)+'_'+str(d)+'_'+str(delta)+'/analysisDict','rb'))
+		
+		#INITIAL GUESS
+		lamda = 1
+		#FITTING WITH EXPONENTIAL DECAY FUNCTION
+		flag = True
+		[params, pcov] = optimize.curve_fit(tangentCorr, analysisDict['x'], analysisDict['correlation'], [lamda])
+		lamda = params[0]*d
+		
+		X = numpy.linspace(0,M-1,1000)
+		Y = numpy.exp(-X/params[0])
+		print params[0], params[0]*d
+		ax.plot(analysisDict['x'],analysisDict['correlation'],label='Correlation',lw=2)
+		ax.plot(X,Y,label='Fit')
+		ax.set_xlabel(r'$\Delta$(L)')
+		ax.set_ylabel('Correlation')
+		ax.set_xlim(0,M)
+		ax.set_ylim(0,1)
+		plt.savefig(mode+'/'+str(B)+'_'+str(M)+'_'+str(d)+'_'+str(delta)+'/figCorr.png',format='png')
+		plt.savefig(mode+'/'+str(B)+'_'+str(M)+'_'+str(d)+'_'+str(delta)+'/figCorr.pdf',format='pdf')
+		plt.cla()
+		
+		ax.hist(analysisDict['theta'], bins=range(0,91,1), normed=True)
+		ax.set_xlabel('Bending angle (deg)')
+		ax.set_ylabel('Probability')
+		plt.savefig(mode+'/'+str(B)+'_'+str(M)+'_'+str(d)+'_'+str(delta)+'/figBendingAngle.png',format='png')
+		plt.savefig(mode+'/'+str(B)+'_'+str(M)+'_'+str(d)+'_'+str(delta)+'/figBendingAngle.pdf',format='pdf')
+		plt.cla()
+		
+		print numpy.mean(numpy.asarray(analysisDict['end2end'])**2)
+		print numpy.var(analysisDict['end2end'])
+		print 2*lamda*100 - 2*lamda**2*(1-numpy.exp(-100/lamda))
 	
 plt.close()
 ####################################################

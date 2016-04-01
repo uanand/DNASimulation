@@ -39,7 +39,7 @@ for mode in ['2d','3d']:
 					del hp
 				else:
 					acceptProb = 1.0
-				outFile.write("%d %d %d %.1f %d %f\n" %(modeInt, B, M, d, delta, acceptProb))
+				outFile.write("%d %d %d %.1f %d %f %d\n" %(modeInt, B, M, d, delta, acceptProb, numPerturb))
 			counter += 1
 outFile.close()
 
@@ -57,9 +57,9 @@ if (rank == 0):
 	sort = numpy.lexsort((DATA[:,4],DATA[:,3],DATA[:,2],DATA[:,1],DATA[:,0]))
 	
 	outFile = open('acceptProb.txt', 'wb')
-	outFile.write("2D/3D B M d delta AcceptanceProbability\n")
+	outFile.write("2D/3D B M d delta AcceptanceProbability NumberOfPerturbations\n")
 	for i in sort:
-		outFile.write("%d %d %d %.1f %d %f\n" %(DATA[i,0],DATA[i,1],DATA[i,2],DATA[i,3],DATA[i,4],DATA[i,5]))
+		outFile.write("%d %d %d %.1f %d %f %d\n" %(DATA[i,0],DATA[i,1],DATA[i,2],DATA[i,3],DATA[i,4],DATA[i,5],DATA[i,6]))
 	outFile.close()
 	
 ##################################################

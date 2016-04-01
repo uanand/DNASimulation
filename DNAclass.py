@@ -58,10 +58,10 @@ class DNA(object):
 	def updateDNA(self):
 		if (self.mode == '2d'):
 			self.x0,self.y0 = self.x1.copy(),self.y1.copy()
-			self.e0 = self.e1.copy()
+			self.e0 = self.e1
 		elif (self.mode == '3d'):
 			self.x0,self.y0,self.z0 = self.x1.copy(),self.y1.copy(),self.z1.copy()
-			self.e0 = self.e1.copy()
+			self.e0 = self.e1
 		
 	def energy(self):
 		if (self.mode == '2d'):

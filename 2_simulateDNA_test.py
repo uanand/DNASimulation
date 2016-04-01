@@ -14,15 +14,16 @@ comm = MPI.COMM_WORLD
 rank = comm.Get_rank()
 size = comm.Get_size()
 
+eps = 1e-10
 ####################################################
 ####################################################
 # USER INPUTS
-numDNA = 1e4
-numPerturb = 1e5
-dList = [0.5,1.0,1.5,2.0,2.5,3.0,3.5,4.0,4.5,5.0]
-deltaList = [28,35,39,45,49,53,57,60,64,67]
-BList = [50,50,50,50,50,50,50,50,50,50]
-MList = [200,200,200,200,200,200,200,200,200,200]
+numDNA = 1e1
+numPerturb = 1e3
+# dList = [0.5,1.0,1.5,2.0,2.5,3.0,3.5,4.0,4.5,5.0]
+# deltaList = [28,35,39,45,49,53,57,60,64,67]
+# BList = [50,50,50,50,50,50,50,50,50,50]
+# MList = [200,200,200,200,200,200,200,200,200,200]
 ####################################################
 ####################################################
 
@@ -40,18 +41,20 @@ MList = [200,200,200,200,200,200,200,200,200,200]
 ####################################################
 ####################################################
 DATA = numpy.loadtxt('acceptProb.txt', delimiter=' ', skiprows=1)
-dList = numpy.arange(0.5,5.1,0.1)
+dList = numpy.unique(DATA[:,3])#numpy.arange(0.5,5.1,0.1)
 BList = numpy.zeros(numpy.size(dList),dtype='int'); BList[:] = 50
 MList = numpy.zeros(numpy.size(dList),dtype='int'); MList[:] = 200
 
 for mode in ['2d','3d']:
+    if (rank == 0):
+        mkdir(mode)
     if (mode == '2d'):
         modeInt = 2
     elif (mode == '3d'):
         modeInt = 3
     deltaList = []
-    data = DATA[DATA[:,0] == modeInt]
     for B,M,d in zip(BList,MList,dList):
+        data = DATA[DATA[:,0] == modeInt]
         data = data[data[:,1] == B]
         data = data[data[:,2] == M]
         data = data[data[:,3] == d]
@@ -60,7 +63,7 @@ for mode in ['2d','3d']:
         
     for B,M,d,delta in zip(BList,MList,dList,deltaList):
         if (rank == 0):
-            mkdir(str(B)+'_'+str(M)+'_'+str(d)+'_'+str(delta))
+            mkdir(mode+'/'+str(B)+'_'+str(M)+'_'+str(d)+'_'+str(delta))
             
     for B,M,d,delta in zip(BList,MList,dList,deltaList):
         for DNAcounter in range(1,int(numDNA)+1):
@@ -70,7 +73,7 @@ for mode in ['2d','3d']:
                 hp = DNA(B,M,d)
                 while (hp.feasibleCounter < numPerturb):
                     hp.copyDNA()
-                    hp.perturb(mode=numpy.random.randint(2), delta=delta)
+                    hp.perturb(perturbMode=numpy.random.randint(2), delta=delta)
                     hp.acceptReject()
                 hp.tangentCorrelation()
                 hp.bendingAngle()
@@ -89,11 +92,12 @@ for mode in ['2d','3d']:
                 DNAdict['B'] = hp.B
                 DNAdict['M'] = hp.M
                 DNAdict['d'] = hp.d
+                DNAdict['mode'] = hp.mode
                 DNAdict['time'] = toc-tic
-                pickle.dump(DNAdict, open(str(B)+'_'+str(M)+'_'+str(d)+'_'+str(delta)+'/'+str(DNAcounter).zfill(len(str(int(numDNA)))), 'wb'))
+                pickle.dump(DNAdict, open(mode+'/'+str(B)+'_'+str(M)+'_'+str(d)+'_'+str(delta)+'/'+str(DNAcounter).zfill(len(str(int(numDNA)))), 'wb'))
                 del hp, DNAdict
                 if (rank == 0):
-                    print d,delta,DNAcounter,toc-tic
+                    print mode,d,delta,DNAcounter,toc-tic
 ####################################################
 ####################################################
 
@@ -104,28 +108,43 @@ for mode in ['2d','3d']:
 ####################################################
 ####################################################
 if (rank == 0):
-    for B,M,d,delta in zip(BList,MList,dList,deltaList):
-        h5 = h5py.File(str(B)+'_'+str(M)+'_'+str(d)+'_'+str(delta)+'/DNA.h5py', 'w')
-        print B,M,d,delta
-        for i in range(1,int(numDNA)+1):
-            fileName = str(B)+'_'+str(M)+'_'+str(d)+'_'+str(delta)+'/'+str(i).zfill(len(str(int(numDNA))))
-            DNAdict = pickle.load(open(fileName,'rb'))
-            DNA = h5.create_group(str(i).zfill(len(str(int(numDNA)))))
-            DNA.create_dataset('x', data=DNAdict['x'], compression='gzip')
-            DNA.create_dataset('y', data=DNAdict['y'], compression='gzip')
-            DNA.create_dataset('z', data=DNAdict['z'], compression='gzip')
-            DNA.create_dataset('acceptCounter', data=DNAdict['acceptCounter'])
-            DNA.create_dataset('feasibleCounter', data=DNAdict['feasibleCounter'])
-            DNA.create_dataset('totalCounter', data=DNAdict['totalCounter'])
-            DNA.create_dataset('tangentCorrList', data=DNAdict['tangentCorrList'], compression='gzip')
-            DNA.create_dataset('bendingAngleList', data=DNAdict['bendingAngleList'], compression='gzip')
-            DNA.create_dataset('end2end', data=DNAdict['end2end'])
-            DNA.create_dataset('B', data=DNAdict['B'])
-            DNA.create_dataset('M', data=DNAdict['M'])
-            DNA.create_dataset('d', data=DNAdict['d'])
-            DNA.create_dataset('time', data=DNAdict['time'])
-            del DNAdict
-            os.remove(fileName)
-        h5.close()
+    for mode in ['2d','3d']:
+        if (mode == '2d'):
+    		modeInt = 2
+    	else:
+    		modeInt = 3
+        deltaList = []
+        for B,M,d in zip(BList,MList,dList):
+            data = DATA[DATA[:,0] == modeInt]
+            data = data[data[:,1] == B]
+            data = data[data[:,2] == M]
+            data = data[data[:,3] == d]
+            index = numpy.argmin(numpy.abs(data[:,5]-0.5))
+            deltaList.append(int(data[index,4]))
+            
+        for B,M,d,delta in zip(BList,MList,dList,deltaList):
+            h5 = h5py.File(mode+'/'+str(B)+'_'+str(M)+'_'+str(d)+'_'+str(delta)+'/DNA.h5py', 'w')
+            print B,M,d,delta
+            for i in range(1,int(numDNA)+1):
+                fileName = mode+'/'+str(B)+'_'+str(M)+'_'+str(d)+'_'+str(delta)+'/'+str(i).zfill(len(str(int(numDNA))))
+                DNAdict = pickle.load(open(fileName,'rb'))
+                DNA = h5.create_group(str(i).zfill(len(str(int(numDNA)))))
+                DNA.create_dataset('x', data=DNAdict['x'], compression='gzip')
+                DNA.create_dataset('y', data=DNAdict['y'], compression='gzip')
+                DNA.create_dataset('z', data=DNAdict['z'], compression='gzip')
+                DNA.create_dataset('acceptCounter', data=DNAdict['acceptCounter'])
+                DNA.create_dataset('feasibleCounter', data=DNAdict['feasibleCounter'])
+                DNA.create_dataset('totalCounter', data=DNAdict['totalCounter'])
+                DNA.create_dataset('tangentCorrList', data=DNAdict['tangentCorrList'], compression='gzip')
+                DNA.create_dataset('bendingAngleList', data=DNAdict['bendingAngleList'], compression='gzip')
+                DNA.create_dataset('end2end', data=DNAdict['end2end'])
+                DNA.create_dataset('B', data=DNAdict['B'])
+                DNA.create_dataset('M', data=DNAdict['M'])
+                DNA.create_dataset('d', data=DNAdict['d'])
+                DNA.create_dataset('mode', data=DNAdict['mode'])
+                DNA.create_dataset('time', data=DNAdict['time'])
+                del DNAdict
+                os.remove(fileName)
+            h5.close()
 ####################################################
 ####################################################
