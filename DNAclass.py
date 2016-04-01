@@ -19,22 +19,27 @@ class DNA(object):
         self.e0 = 0
         self.eps = 1e-20
         
+    ##############################################################
     def rotate2d(self,x,y,a,b,alpha):
         x,y = cos(alpha)*(x-a) - sin(alpha)*(y-b) + a, sin(alpha)*(x-a) + cos(alpha)*(y-b) + b
         return x,y
         
+    ##############################################################
     def rotate3d(self,x,y,z,a,b,c,u,v,w,alpha):
         x,y,z = (a*(v**2+w**2) - u*(b*v+c*w-u*x-v*y-w*z))*(1-cos(alpha)) + x*cos(alpha) + (-c*v+b*w-w*y+v*z)*sin(alpha), (b*(u**2+w**2) - v*(a*u+c*w-u*x-v*y-w*z))*(1-cos(alpha)) + y*cos(alpha) + (c*u-a*w+w*x-u*z)*sin(alpha), (c*(u**2+v**2) - w*(a*u+b*v-u*x-v*y-w*z))*(1-cos(alpha)) + z*cos(alpha) + (-b*u+a*v-v*x+u*y)*sin(alpha)
         return x,y,z
         
+    ##############################################################
     def normalize2d(self,x,y,z):
         length = sqrt(x**2+y**2+z**2)
         return x/length,y/length,z/length
         
+    ##############################################################
     def normalize3d(self,x,y,z):
         length = sqrt(x**2+y**2+z**2)
         return x/length,y/length,z/length
         
+    ##############################################################
     def copyDNA(self):
         if (self.mode == '2d'):
             self.x1,self.y1 = self.x0.copy(),self.y0.copy()
@@ -42,7 +47,8 @@ class DNA(object):
         elif (self.mode == '3d'):
             self.x1,self.y1,self.z1 = self.x0.copy(),self.y0.copy(),self.z0.copy()
             self.e1 = self.e0
-        
+            
+    ##############################################################
     def compareDNA(self):
         if (self.mode == '2d'):
             if (numpy.max(numpy.abs(numpy.concatenate((self.x1,self.y1)) - numpy.concatenate((self.x0,self.y0)))) <= self.eps):
@@ -54,7 +60,8 @@ class DNA(object):
                 return 0
             else:
                 return 1
-        
+                
+    ##############################################################
     def updateDNA(self):
         if (self.mode == '2d'):
             self.x0,self.y0 = self.x1.copy(),self.y1.copy()
@@ -62,7 +69,8 @@ class DNA(object):
         elif (self.mode == '3d'):
             self.x0,self.y0,self.z0 = self.x1.copy(),self.y1.copy(),self.z1.copy()
             self.e0 = self.e1
-        
+            
+    ##############################################################
     def energy(self):
         if (self.mode == '2d'):
             lengthSegment = sqrt((self.x0[1:]-self.x0[:-1])**2 + (self.y0[1:]-self.y0[:-1])**2)
@@ -80,7 +88,8 @@ class DNA(object):
             lengthSegment = sqrt((self.x1[1:]-self.x1[:-1])**2 + (self.y1[1:]-self.y1[:-1])**2 + (self.z1[1:]-self.z1[:-1])**2)
             tangentX, tangentY, tangentZ = (self.x1[1:]-self.x1[:-1])/lengthSegment, (self.y1[1:]-self.y1[:-1])/lengthSegment, (self.z1[1:]-self.z1[:-1])/lengthSegment
             self.e1 = self.bCoeff/2*numpy.sum((tangentX[1:]-tangentX[:-1])**2 + (tangentY[1:]-tangentY[:-1])**2 + (tangentZ[1:]-tangentZ[:-1])**2)
-        
+            
+    ##############################################################
     def perturb(self,perturbMode=0,delta=20):
         if (self.mode == '2d'):
             i = numpy.random.randint(1,self.M-1)
@@ -112,7 +121,8 @@ class DNA(object):
                 a,b,c = self.x1[i],self.y1[i],self.z1[i]
                 u,v,w = self.normalize3d(self.x1[j]-self.x1[i],self.y1[j]-self.y1[i],self.z1[j]-self.z1[i])
                 self.x1[i+1:j],self.y1[i+1:j],self.z1[i+1:j] = self.rotate3d(self.x1[i+1:j],self.y1[i+1:j],self.z1[i+1:j],a,b,c,u,v,w,alpha)
-            
+                
+    ##############################################################
     def acceptReject(self):
         if (self.mode == '2d'):
             lengthSegment = sqrt((self.x1[1:]-self.x1[:-1])**2 + (self.y1[1:]-self.y1[:-1])**2)
@@ -122,7 +132,7 @@ class DNA(object):
             lengthSegment = sqrt((self.x1[1:]-self.x1[:-1])**2 + (self.y1[1:]-self.y1[:-1])**2 + (self.z1[1:]-self.z1[:-1])**2)
             tangentX, tangentY, tangentZ = (self.x1[1:]-self.x1[:-1])/lengthSegment, (self.y1[1:]-self.y1[:-1])/lengthSegment, (self.z1[1:]-self.z1[:-1])/lengthSegment
             self.e1 = self.bCoeff/2*numpy.sum((tangentX[1:]-tangentX[:-1])**2 + (tangentY[1:]-tangentY[:-1])**2 + (tangentZ[1:]-tangentZ[:-1])**2)
-        
+            
         if (self.compareDNA()==0):
             self.totalCounter+=1
         else:
@@ -135,6 +145,7 @@ class DNA(object):
                 self.updateDNA()
                 self.acceptCounter+=1
                 
+    ##############################################################
     def tangentCorrelation(self):
         self.corrDict, self.corrList = {}, []
         if (self.mode == '2d'):
@@ -154,7 +165,8 @@ class DNA(object):
         for i in range(self.M-1):
             self.corrList.append(numpy.mean(self.corrDict[i]))
         self.corrList = numpy.asarray(self.corrList)
-            
+        
+    ##############################################################
     def bendingAngle(self):
         self.bendingAngleList = []
         if (self.mode == '2d'):
@@ -178,7 +190,8 @@ class DNA(object):
                     dotProduct = -1
                 self.bendingAngleList.append(rad2deg(arccos(dotProduct)))
         self.bendingAngleList = numpy.array(self.bendingAngleList)
-            
+        
+    ##############################################################
     def end2endDistance(self):
         if (self.mode == '2d'):
             self.end2end = sqrt((self.x0[0]-self.x0[-1])**2 + (self.y0[0]-self.y0[-1])**2)
