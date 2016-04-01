@@ -65,7 +65,7 @@ if (rank==0):
             mkdir(mode+'/'+str(B)+'_'+str(M)+'_'+str(d)+'_'+str(delta))
 comm.Barrier()
         
-for mode in ['3d']:
+for mode in ['2d','3d']:
     if (mode == '2d'):
         modeInt = 2
     elif (mode == '3d'):
