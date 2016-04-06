@@ -55,7 +55,7 @@ class DNA(object):
                 return 0
             else:
                 return 1
-        elif (self.mode == '2d'):
+        elif (self.mode == '3d'):
             if (numpy.max(numpy.abs(numpy.concatenate((self.x1,self.y1,self.z1)) - numpy.concatenate((self.x0,self.y0,self.z0)))) <= self.eps):
                 return 0
             else:
