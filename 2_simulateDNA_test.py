@@ -18,7 +18,7 @@ eps = 1e-10
 ####################################################
 ####################################################
 # USER INPUTS
-numDNA = 1e5
+numDNA = 1e4
 numPerturb = 1e5
 # dList = [0.5,1.0,1.5,2.0,2.5,3.0,3.5,4.0,4.5,5.0]
 # deltaList = [28,35,39,45,49,53,57,60,64,67]
@@ -84,7 +84,7 @@ for mode in ['2d','3d']:
             if ((DNAcounter-1)%size == rank):
                 DNAdict = {}
                 tic = time.time()
-                hp = DNA(B,M,d)
+                hp = DNA(B,M,d,mode=mode)
                 while (hp.feasibleCounter < numPerturb):
                     hp.copyDNA()
                     hp.perturb(perturbMode=numpy.random.randint(2), delta=delta)
@@ -96,7 +96,8 @@ for mode in ['2d','3d']:
                 
                 DNAdict['x'] = hp.x0.astype('float32')
                 DNAdict['y'] = hp.y0.astype('float32')
-                DNAdict['z'] = hp.z0.astype('float32')
+                if (mode=='3d'):
+	                DNAdict['z'] = hp.z0.astype('float32')
                 DNAdict['acceptCounter'] = hp.acceptCounter
                 DNAdict['feasibleCounter'] = hp.feasibleCounter
                 DNAdict['totalCounter'] = hp.totalCounter
@@ -106,6 +107,7 @@ for mode in ['2d','3d']:
                 DNAdict['B'] = hp.B
                 DNAdict['M'] = hp.M
                 DNAdict['d'] = hp.d
+                DNAdict['delta'] = delta
                 DNAdict['mode'] = hp.mode
                 DNAdict['time'] = toc-tic
                 pickle.dump(DNAdict, open(mode+'/'+str(B)+'_'+str(M)+'_'+str(d)+'_'+str(delta)+'/'+str(DNAcounter).zfill(len(str(int(numDNA)))), 'wb'))
