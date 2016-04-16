@@ -46,7 +46,7 @@ BList = numpy.zeros(numpy.size(dList),dtype='int'); BList[:] = 50
 MList = numpy.zeros(numpy.size(dList),dtype='int'); MList[:] = 200
 
 if (rank==0):
-    for mode in ['2d','3d']:
+    for mode in ['2d']:#['2d','3d']:
         if (mode == '2d'):
             modeInt = 2
         elif (mode == '3d'):
@@ -65,7 +65,7 @@ if (rank==0):
             mkdir(mode+'/'+str(B)+'_'+str(M)+'_'+str(d)+'_'+str(delta))
 comm.Barrier()
         
-for mode in ['2d','3d']:
+for mode in ['2d']:#['2d','3d']:
     if (mode == '2d'):
         modeInt = 2
     elif (mode == '3d'):
@@ -125,7 +125,7 @@ comm.Barrier()
 ####################################################
 ####################################################
 if (rank == 0):
-    for mode in ['2d','3d']:
+    for mode in ['2d']:#['2d','3d']:
         if (mode == '2d'):
             modeInt = 2
         else:
@@ -148,7 +148,8 @@ if (rank == 0):
                 DNA = h5.create_group(str(i).zfill(len(str(int(numDNA)))))
                 DNA.create_dataset('x', data=DNAdict['x'], compression='gzip')
                 DNA.create_dataset('y', data=DNAdict['y'], compression='gzip')
-                DNA.create_dataset('z', data=DNAdict['z'], compression='gzip')
+                if (mode == '3d'):
+                    DNA.create_dataset('z', data=DNAdict['z'], compression='gzip')
                 DNA.create_dataset('acceptCounter', data=DNAdict['acceptCounter'])
                 DNA.create_dataset('feasibleCounter', data=DNAdict['feasibleCounter'])
                 DNA.create_dataset('totalCounter', data=DNAdict['totalCounter'])
